@@ -1,4 +1,7 @@
+import { useState } from "react";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
+import Map from "@/components/Map";
+import PrefeituraZoneModal from "@/components/PrefeituraZoneModal";
 
 // Mock notifications
 const notifications = [
@@ -22,7 +25,34 @@ const notifications = [
   },
 ];
 
+// Converter notificações para formato de zonas do mapa
+const mapZones = notifications.map(notif => ({
+  id: notif.zone_id,
+  coordinates: notif.coordinates,
+  score: notif.level === "CRÍTICO" ? 85 : 65,
+  level: notif.level,
+  total_imoveis: notif.total_imoveis,
+  populacao_estimada: notif.populacao_estimada,
+}));
+
 const Prefeitura = () => {
+  const [selectedZone, setSelectedZone] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleZoneClick = (zone: any) => {
+    // Encontrar notificação completa
+    const notification = notifications.find(n => n.zone_id === zone.id);
+    if (notification) {
+      setSelectedZone(notification);
+      setModalOpen(true);
+    }
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    setSelectedZone(notification);
+    setModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -45,20 +75,24 @@ const Prefeitura = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <div className="space-y-6">
-          {/* Map Placeholder */}
-          <div className="rounded-lg border bg-card p-8 shadow-sm">
+          {/* Map */}
+          <div className="rounded-lg border bg-card p-4 shadow-sm">
             <h2 className="mb-4 text-xl font-bold text-foreground">
-              Mapa de Notificações
+              🗺️ Mapa de Notificações
             </h2>
-            <div className="flex min-h-[500px] items-center justify-center">
-              <div className="text-center">
-                <div className="mb-4 text-6xl">🗺️</div>
-                <h3 className="mb-2 text-xl font-bold text-foreground">
-                  Mapa de Curitiba
-                </h3>
-                <p className="text-muted-foreground">
-                  Visualização das zonas de risco notificadas
-                </p>
+            <Map 
+              center={[-25.4284, -49.2733]} 
+              zones={mapZones}
+              onZoneClick={handleZoneClick}
+            />
+            <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                <span>Crítico</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                <span>Alto</span>
               </div>
             </div>
           </div>
@@ -73,7 +107,8 @@ const Prefeitura = () => {
               {notifications.map((notif) => (
                 <div
                   key={notif.zone_id}
-                  className="cursor-pointer rounded-lg bg-card p-4 shadow-sm transition-shadow hover:shadow-lg"
+                  onClick={() => handleNotificationClick(notif)}
+                  className="cursor-pointer rounded-lg bg-card p-4 shadow-sm transition-all hover:shadow-lg hover:scale-[1.02]"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -93,7 +128,7 @@ const Prefeitura = () => {
                         </p>
                       </div>
                     </div>
-                    <button className="text-accent hover:text-accent/80">
+                    <button className="text-accent hover:text-accent/80 font-medium">
                       Ver Detalhes →
                     </button>
                   </div>
@@ -103,6 +138,13 @@ const Prefeitura = () => {
           </div>
         </div>
       </main>
+
+      {/* Modal de Detalhes */}
+      <PrefeituraZoneModal 
+        zone={selectedZone}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 };
