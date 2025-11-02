@@ -50,6 +50,7 @@ export interface RiskFactor {
   valor: number | string;
   peso: number;         // 0-1
   score?: number;       // 0-1
+  descricao?: string;   // Descrição opcional do fator
 }
 
 // ===== INFRAESTRUTURA OSM =====

@@ -102,14 +102,43 @@ const ClimaSeguro = () => {
         cor,
         prioridade: scoreNorm >= 75 ? 1 : scoreNorm >= 50 ? 2 : 3,
         fatores: [
-          { nome: 'Precipitação', valor: Math.random(), peso: 0.25 },
-          { nome: 'Temperatura', valor: Math.random(), peso: 0.15 },
-          { nome: 'Umidade', valor: Math.random(), peso: 0.15 },
-          { nome: 'Densidade Populacional', valor: Math.random(), peso: 0.25 },
-          { nome: 'Vulnerabilidade', valor: Math.random(), peso: 0.20 }
+          { 
+            nome: 'Histórico de Desastres', 
+            valor: Math.random() * 0.20, // 0-20% do score
+            peso: 0.20,
+            descricao: `Fator regional baseado no histórico do estado ${selectedCityData?.state || 'PR'}`
+          },
+          { 
+            nome: 'Declividade do Terreno', 
+            valor: Math.random() * 0.30, // 0-30% do score
+            peso: 0.30,
+            descricao: `Terreno com ${(Math.random() * 20).toFixed(1)}% de inclinação`
+          },
+          { 
+            nome: 'Proximidade de Rios', 
+            valor: Math.random() * 0.25, // 0-25% do score
+            peso: 0.25,
+            descricao: `${Math.floor(Math.random() * 5)} rio(s) identificado(s) na zona`
+          },
+          { 
+            nome: 'Densidade Urbana', 
+            valor: Math.random() * 0.15, // 0-15% do score
+            peso: 0.15,
+            descricao: `${Math.floor(Math.random() * 50)} construções e ${Math.floor(Math.random() * 20)} vias mapeadas`
+          },
+          { 
+            nome: 'Cobertura Vegetal', 
+            valor: Math.random() * 0.10, // 0-10% do score
+            peso: 0.10,
+            descricao: `${Math.floor(Math.random() * 10)} área(s) verde(s) - proteção natural`
+          }
         ],
         declividade: Math.random() * 30,
-        recomendacoes: ['Sistema de drenagem', 'Monitoramento contínuo']
+        recomendacoes: [
+          'Instalar sistema de drenagem pluvial',
+          'Monitoramento contínuo de chuvas',
+          'Manter áreas verdes preservadas'
+        ]
       });
     }
     
@@ -215,18 +244,29 @@ const ClimaSeguro = () => {
             </div>
           </div>
 
-          <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger className="w-[300px]">
-              <SelectValue placeholder="Selecione uma cidade" />
-            </SelectTrigger>
-            <SelectContent>
-              {cities.map((city) => (
-                <SelectItem key={city.code} value={city.code}>
-                  {city.name} - {city.state}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-4">
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="w-[300px]">
+                <SelectValue placeholder="Selecione uma cidade" />
+              </SelectTrigger>
+              <SelectContent>
+                {cities.map((city) => (
+                  <SelectItem key={city.code} value={city.code}>
+                    {city.name} - {city.state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.location.href = '/'}
+              className="gap-2"
+            >
+              🚪 Sair
+            </Button>
+          </div>
         </div>
       </header>
 

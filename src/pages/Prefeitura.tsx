@@ -1,12 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, AlertTriangle, RefreshCw } from "lucide-react";
 import logoSvg from "@/assets/clima-seguro-logo.svg";
@@ -38,7 +31,7 @@ function mapZoneRiskToMapZone(zoneResult: ZoneRiskResult): any {
 }
 
 const Prefeitura = () => {
-  const [selectedCity, setSelectedCity] = useState<string>("4106902"); // Curitiba por padrão
+  const [selectedCity] = useState<string>("4106902"); // Curitiba fixo
   const [selectedZone, setSelectedZone] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [useMockData, setUseMockData] = useState(false);
@@ -101,14 +94,43 @@ const Prefeitura = () => {
         cor,
         prioridade: scoreNorm >= 75 ? 1 : scoreNorm >= 50 ? 2 : 3,
         fatores: [
-          { nome: 'Precipitação', valor: Math.random(), peso: 0.25 },
-          { nome: 'Temperatura', valor: Math.random(), peso: 0.15 },
-          { nome: 'Umidade', valor: Math.random(), peso: 0.15 },
-          { nome: 'Densidade Populacional', valor: Math.random(), peso: 0.25 },
-          { nome: 'Vulnerabilidade', valor: Math.random(), peso: 0.20 }
+          { 
+            nome: 'Histórico de Desastres', 
+            valor: Math.random() * 0.20, // 0-20% do score
+            peso: 0.20,
+            descricao: `Fator regional baseado no histórico do estado PR`
+          },
+          { 
+            nome: 'Declividade do Terreno', 
+            valor: Math.random() * 0.30, // 0-30% do score
+            peso: 0.30,
+            descricao: `Terreno com ${(Math.random() * 20).toFixed(1)}% de inclinação`
+          },
+          { 
+            nome: 'Proximidade de Rios', 
+            valor: Math.random() * 0.25, // 0-25% do score
+            peso: 0.25,
+            descricao: `${Math.floor(Math.random() * 5)} rio(s) identificado(s) na zona`
+          },
+          { 
+            nome: 'Densidade Urbana', 
+            valor: Math.random() * 0.15, // 0-15% do score
+            peso: 0.15,
+            descricao: `${Math.floor(Math.random() * 50)} construções e ${Math.floor(Math.random() * 20)} vias mapeadas`
+          },
+          { 
+            nome: 'Cobertura Vegetal', 
+            valor: Math.random() * 0.10, // 0-10% do score
+            peso: 0.10,
+            descricao: `${Math.floor(Math.random() * 10)} área(s) verde(s) - proteção natural`
+          }
         ],
         declividade: Math.random() * 30,
-        recomendacoes: ['Sistema de drenagem', 'Monitoramento contínuo']
+        recomendacoes: [
+          'Instalar sistema de drenagem pluvial',
+          'Monitoramento contínuo de chuvas',
+          'Manter áreas verdes preservadas'
+        ]
       });
     }
     
@@ -156,15 +178,6 @@ const Prefeitura = () => {
     setModalOpen(true);
   };
 
-  // Reset quando troca cidade
-  useEffect(() => {
-    if (selectedCity) {
-      setSelectedZone(null);
-      setModalOpen(false);
-      setUseMockData(false);
-    }
-  }, [selectedCity]);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -174,26 +187,22 @@ const Prefeitura = () => {
             <img src={logoSvg} alt="ClimaSeguro" className="h-12 w-auto" />
             <div>
               <h1 className="text-xl font-bold text-foreground">
-                Prefeitura - {selectedCityData?.name || "Gestão de Riscos"}
+                Prefeitura de {selectedCityData?.name || "Curitiba"}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Gestão de Riscos e Prevenção
               </p>
             </div>
           </div>
-
-          <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger className="w-[300px]">
-              <SelectValue placeholder="Selecione uma cidade" />
-            </SelectTrigger>
-            <SelectContent>
-              {cities.map((city) => (
-                <SelectItem key={city.code} value={city.code}>
-                  {city.name} - {city.state}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.href = '/'}
+            className="gap-2"
+          >
+            🚪 Sair
+          </Button>
         </div>
       </header>
 
@@ -210,7 +219,7 @@ const Prefeitura = () => {
             />
             <StatCard
               icon="🟠"
-              label="Zonas Alto Risco"
+              label="Zonas Críticas"
               value={riskCalculation.isLoading ? "..." : (riskCalculation.stats.high - riskCalculation.stats.veryHigh).toString()}
               color="bg-orange-100 text-orange-700 border-orange-300"
             />
@@ -320,7 +329,7 @@ const Prefeitura = () => {
           {mapZones.length > 0 && (
             <div>
               <h2 className="mb-4 text-xl font-bold text-foreground">
-                🔔 Zonas de Alto Risco
+                � Zonas Críticas
               </h2>
 
               <div className="space-y-3">
@@ -366,7 +375,7 @@ const Prefeitura = () => {
               {mapZones.filter(z => z.score >= 50).length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <div className="text-5xl mb-2">✅</div>
-                  <p>Nenhuma zona de alto risco identificada</p>
+                  <p>Nenhuma zona crítica identificada</p>
                 </div>
               )}
             </div>

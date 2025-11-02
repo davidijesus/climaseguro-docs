@@ -15,9 +15,7 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ResidenceAnalysis } from "@/components/ResidenceAnalysis";
-import { Camera, Info, Loader2 } from "lucide-react";
-import { captureAndAnalyzeZone } from "@/services/satelliteCapture";
+import { Info, Loader2 } from "lucide-react";
 
 interface ZoneDetailModalProps {
   zone: {
@@ -27,85 +25,88 @@ interface ZoneDetailModalProps {
     total_imoveis?: number;
     populacao_estimada?: number;
     coordinates: { lat: number; lon: number };
+    _originalData?: any; // Dados completos do cálculo de risco
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const ZoneDetailModal = ({ zone, open, onOpenChange }: ZoneDetailModalProps) => {
-  const [showResidenceAnalysis, setShowResidenceAnalysis] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<{
-    totalResidences: number;
-    photos: any[];
-    processId: number;
-  } | null>(null);
-  const [showFinancialInfo, setShowFinancialInfo] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [satelliteImage, setSatelliteImage] = useState<string | null>(null);
-  const [autoAnalysis, setAutoAnalysis] = useState<{
-    residenceCount: number;
-    description: string;
-    confidence: number;
-  } | null>(null);
-
-  // Análise automática ao abrir o modal
-  useEffect(() => {
-    if (open && zone && !autoAnalysis && !isAnalyzing) {
-      performAutomaticAnalysis();
-    }
-    
-    // Reset ao fechar
-    if (!open) {
-      setAutoAnalysis(null);
-      setSatelliteImage(null);
-      setIsAnalyzing(false);
-      setAnalysisResult(null);
-      setShowResidenceAnalysis(false);
-    }
-  }, [open, zone]);
-
-  const performAutomaticAnalysis = async () => {
-    if (!zone) return;
-    
-    setIsAnalyzing(true);
-    console.log(`🚀 Iniciando análise automática para zona ${zone.id}...`);
-    
-    try {
-      const result = await captureAndAnalyzeZone(
-        zone.id,
-        zone.coordinates.lat,
-        zone.coordinates.lon
-      );
-      
-      setSatelliteImage(result.imageUrl);
-      setAutoAnalysis({
-        residenceCount: result.residenceCount,
-        description: result.analysis,
-        confidence: result.confidence
-      });
-      
-      console.log(`✅ Análise automática concluída: ${result.residenceCount} residências`);
-    } catch (error) {
-      console.error('❌ Erro na análise automática:', error);
-      // Não bloqueia a UI, apenas não mostra os resultados
-    } finally {
-      setIsAnalyzing(false);
+// Função auxiliar para explicar fatores ao cidadão
+const getFatorExplanation = (nome: string, percentage: number): string => {
+  const isHigh = percentage >= 70;
+  const isMedium = percentage >= 50;
+  
+  const explanations: Record<string, { high: string; medium: string; low: string }> = {
+    "Histórico de Desastres": {
+      high: "Região com histórico frequente de alagamentos ou deslizamentos no estado",
+      medium: "Alguns eventos registrados no passado, requer monitoramento preventivo",
+      low: "Poucos ou nenhum desastre registrado historicamente na região"
+    },
+    "Declividade do Terreno": {
+      high: "Terreno muito inclinado, alto risco de deslizamentos e erosão",
+      medium: "Inclinação moderada, atenção necessária em períodos de chuva forte",
+      low: "Terreno plano ou pouco inclinado, baixo risco de deslizamento"
+    },
+    "Proximidade de Rios": {
+      high: "Múltiplos rios na zona aumentam significativamente risco de alagamento",
+      medium: "Presença de rios requer atenção ao volume de chuvas",
+      low: "Poucos ou nenhum rio próximo, risco reduzido de enchentes"
+    },
+    "Densidade Urbana": {
+      high: "Alta concentração de construções e vias aumenta o número de afetados",
+      medium: "Densidade populacional moderada, impacto intermediário em emergências",
+      low: "Área rural ou pouco povoada, menor número de pessoas em risco"
+    },
+    "Cobertura Vegetal": {
+      high: "Pouca vegetação, solo desprotegido e vulnerável a erosão e deslizamentos",
+      medium: "Cobertura vegetal moderada oferece alguma proteção natural",
+      low: "Muita vegetação, proteção natural contra erosão e deslizamentos"
     }
   };
 
+  // Tenta encontrar por nome exato ou similar
+  const key = Object.keys(explanations).find(k => 
+    nome.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(nome.toLowerCase())
+  );
+  
+  if (key) {
+    const exp = explanations[key];
+    return isHigh ? exp.high : isMedium ? exp.medium : exp.low;
+  }
+  
+  // Explicação genérica
+  return isHigh 
+    ? "Este fator apresenta alto impacto no risco da região"
+    : isMedium
+    ? "Este fator tem impacto moderado no cálculo de risco"
+    : "Este fator apresenta baixo impacto no risco total";
+};
+
+const ZoneDetailModal = ({ zone, open, onOpenChange }: ZoneDetailModalProps) => {
+  const [showFinancialInfo, setShowFinancialInfo] = useState(false);
+  const [prefeituraAcompanhando, setPrefeituraAcompanhando] = useState(false);
+
+  // Reset ao fechar
+  useEffect(() => {
+    if (!open) {
+      setShowFinancialInfo(false);
+      setPrefeituraAcompanhando(false);
+    }
+  }, [open]);
+
   if (!zone) return null;
+
+  // Extrair dados do cálculo de risco (se disponível)
+  const fatores = zone._originalData?.fatores || [];
+  const declividade = zone._originalData?.declividade || 0;
+  const recomendacoes = zone._originalData?.recomendacoes || [];
 
   // ========================================
   // CÁLCULOS FINANCEIROS BASEADOS EM DADOS REAIS
   // ========================================
   
-  // Prioriza análise automática, depois análise manual, por último dados mockados
-  const residences = autoAnalysis 
-    ? autoAnalysis.residenceCount 
-    : analysisResult 
-      ? analysisResult.totalResidences 
-      : (zone.total_imoveis || 0);
-  
+  // Usa dados diretos da zona
+  const residences = zone.total_imoveis || 0;
   const population = Math.round(residences * 3.5);
   
   // 1. CUSTO DE RECONSTRUÇÃO
@@ -221,121 +222,185 @@ const ZoneDetailModal = ({ zone, open, onOpenChange }: ZoneDetailModalProps) => 
             </div>
           </div>
 
+          {/* Toggle Prefeitura Acompanhando */}
+          <div className={`rounded-lg border-2 p-4 transition-all ${
+            prefeituraAcompanhando 
+              ? 'bg-blue-50 border-blue-300' 
+              : 'bg-gray-50 border-gray-300'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">
+                  {prefeituraAcompanhando ? "🏛️" : "⚪"}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    {prefeituraAcompanhando ? "Prefeitura Acompanhando" : "Zona Não Monitorada"}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-0.5">
+                    {prefeituraAcompanhando 
+                      ? "Esta área está sendo monitorada pela prefeitura" 
+                      : "Arraste o botão para indicar que a prefeitura está ciente"}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Toggle Switch */}
+              <button
+                onClick={() => setPrefeituraAcompanhando(!prefeituraAcompanhando)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  prefeituraAcompanhando ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    prefeituraAcompanhando ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {prefeituraAcompanhando && (
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <p className="text-sm text-blue-800">
+                  ✓ Status atualizado! A comunidade será informada que a prefeitura está monitorando esta zona.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Estatísticas */}
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">Imóveis Afetados</p>
-              {isAnalyzing ? (
-                <div className="flex items-center gap-2 mt-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                  <p className="text-sm text-gray-600">Analisando...</p>
-                </div>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold">
-                    {residences}
-                  </p>
-                  {autoAnalysis && (
-                    <p className="text-xs text-blue-600 mt-1 font-semibold">
-                      ✓ {autoAnalysis.residenceCount} residências via satélite (IA)
-                    </p>
-                  )}
-                  {!autoAnalysis && analysisResult && (
-                    <p className="text-xs text-green-600 mt-1 font-semibold">
-                      ✓ {analysisResult.totalResidences} residências identificadas por IA
-                    </p>
-                  )}
-                  {!autoAnalysis && !analysisResult && (
-                    <p className="text-xs text-gray-500 mt-1">Estimativa inicial</p>
-                  )}
-                </>
-              )}
+              <p className="text-3xl font-bold">{residences}</p>
+              <p className="text-xs text-gray-500 mt-1">Estimativa baseada em dados geoespaciais</p>
             </div>
             <div className="rounded-lg border bg-card p-4">
               <p className="text-sm text-muted-foreground">População Estimada</p>
-              {isAnalyzing ? (
-                <div className="flex items-center gap-2 mt-2">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-                  <p className="text-sm text-gray-600">Calculando...</p>
-                </div>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold">
-                    {population}
-                  </p>
-                  {(autoAnalysis || analysisResult) && (
-                    <p className="text-xs text-blue-600 mt-1 font-semibold">
-                      ✓ Baseado em média de 3.5 pessoas/residência
-                    </p>
-                  )}
-                  {!autoAnalysis && !analysisResult && (
-                    <p className="text-xs text-gray-500 mt-1">Estimativa inicial</p>
-                  )}
-                </>
-              )}
+              <p className="text-3xl font-bold">{population}</p>
+              <p className="text-xs text-gray-500 mt-1">Baseado em média de 3.5 pessoas/residência (IBGE)</p>
             </div>
           </div>
 
-          {/* Imagem de Satélite com Análise Automática */}
-          <div className="rounded-lg border bg-muted overflow-hidden">
-            {isAnalyzing && (
-              <div className="flex flex-col items-center justify-center h-64 p-8 text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
-                <p className="text-sm font-medium text-gray-700">
-                  🛰️ Capturando imagem de satélite...
-                </p>
-                <p className="text-xs text-gray-500 mt-2">
-                  Analisando área ao redor da zona {zone.id}
-                </p>
+          {/* Explicabilidade do Score - Fatores de Risco */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold">📊 Explicabilidade do Score de Risco</h3>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowFinancialInfo(true)}
+              >
+                <Info className="h-4 w-4 mr-1" />
+                Como é calculado?
+              </Button>
+            </div>
+
+            {/* Resumo do Score */}
+            <div className={`rounded-lg border-2 p-4 ${
+              zone.score >= 75 ? 'bg-red-50 border-red-300' :
+              zone.score >= 50 ? 'bg-orange-50 border-orange-300' :
+              zone.score >= 25 ? 'bg-yellow-50 border-yellow-300' :
+              'bg-green-50 border-green-300'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Score Final de Risco</p>
+                  <p className="text-4xl font-bold">{zone.score}/100</p>
+                  <p className="text-sm text-gray-600 mt-1">Nível: {zone.level}</p>
+                </div>
+                <div className="text-6xl">
+                  {zone.score >= 75 ? "🔴" : zone.score >= 50 ? "🟠" : zone.score >= 25 ? "🟡" : "🟢"}
+                </div>
               </div>
-            )}
-            
-            {!isAnalyzing && satelliteImage && (
-              <div>
-                <img 
-                  src={satelliteImage} 
-                  alt="Imagem de satélite da zona"
-                  className="w-full h-64 object-cover"
-                />
-                {autoAnalysis && (
-                  <div className="p-4 bg-blue-50 border-t border-blue-200">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-bold text-blue-900">🤖 Análise Automática via IA</h4>
-                      <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
-                        Confiança: {Math.round(autoAnalysis.confidence * 100)}%
-                      </span>
-                    </div>
-                    <p className="text-sm text-blue-800">
-                      {autoAnalysis.description}
-                    </p>
-                    <button
-                      onClick={performAutomaticAnalysis}
-                      className="text-xs text-blue-600 hover:text-blue-800 mt-2 underline"
-                    >
-                      🔄 Analisar novamente
-                    </button>
+              
+              {declividade > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-300">
+                  <p className="text-sm text-gray-700">
+                    <strong>Declividade do terreno:</strong> {declividade.toFixed(1)}° 
+                    {declividade > 20 && " (⚠️ Alto risco de deslizamento)"}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Fatores de Risco Detalhados */}
+            {fatores.length > 0 && (
+              <div className="rounded-lg border bg-card p-4">
+                <h4 className="font-bold mb-4">🎯 Parâmetros Utilizados no Cálculo</h4>
+                <div className="space-y-4">
+                  {fatores.map((fator: any, idx: number) => {
+                    const percentage = Math.round(fator.valor * 100);
+                    const peso = Math.round(fator.peso * 100);
+                    const contribuicao = (fator.valor * fator.peso * 100).toFixed(1);
+                    const isHigh = percentage >= 70;
+                    const isMedium = percentage >= 50 && percentage < 70;
+                    
+                    return (
+                      <div key={idx} className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-900">{fator.nome}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                isHigh ? 'bg-red-100 text-red-700' :
+                                isMedium ? 'bg-orange-100 text-orange-700' :
+                                'bg-green-100 text-green-700'
+                              }`}>
+                                {percentage}%
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 mt-1">
+                              Peso no cálculo: {peso}% | Contribuição para score final: +{contribuicao} pontos
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Barra de progresso */}
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className={`h-3 rounded-full transition-all ${
+                              isHigh ? 'bg-red-500' : 
+                              isMedium ? 'bg-orange-500' : 
+                              'bg-green-500'
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        
+                        {/* Explicação do fator */}
+                        <p className="text-xs text-gray-500 italic">
+                          {getFatorExplanation(fator.nome, percentage)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Resumo da Composição */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h5 className="font-semibold text-sm mb-2">� Como o score é calculado:</h5>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p>• Cada fator contribui proporcionalmente ao seu peso</p>
+                    <p>• Score final = Σ (Valor do Fator × Peso do Fator) × 100</p>
+                    <p>• Classificação: Baixo (&lt;25), Médio (25-49), Alto (50-74), Muito Alto (≥75)</p>
                   </div>
-                )}
+                </div>
               </div>
             )}
-            
-            {!isAnalyzing && !satelliteImage && (
-              <div className="flex flex-col items-center justify-center h-64 p-8 text-center">
-                <div className="text-6xl mb-2">🛰️</div>
-                <p className="text-sm text-muted-foreground">
-                  Análise automática não disponível
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Coordenadas: {zone.coordinates.lat.toFixed(4)}, {zone.coordinates.lon.toFixed(4)}
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="mt-4"
-                  onClick={performAutomaticAnalysis}
-                >
-                  🔄 Tentar novamente
-                </Button>
+
+            {/* Recomendações */}
+            {recomendacoes.length > 0 && (
+              <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
+                <h4 className="font-bold text-blue-900 mb-2">💡 Recomendações de Prevenção</h4>
+                <ul className="space-y-1">
+                  {recomendacoes.map((rec: string, idx: number) => (
+                    <li key={idx} className="text-sm text-blue-800">
+                      • {rec}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
