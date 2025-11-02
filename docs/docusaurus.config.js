@@ -5,7 +5,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 export default {
   title: 'Clima.Seguro',
   url: 'https://davidijesus.github.io',
-  baseUrl: '/',
+  baseUrl: '/climaseguro-docs/',
 
   organizationName: 'davidijesus',   // ou org do GitHub
   projectName: 'climaseguro-docs',

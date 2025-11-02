@@ -43,18 +43,16 @@ LTV = 180.000 × 0,35 × 4 = R\$ 252.000
 ### ROI (Retorno sobre o Investimento)  
 **Fórmula:** ROI = (Lucro líquido - Investimento inicial) ÷ Investimento inicial  
 
-\[
+
 ROI = (315.000 - 300.000) ÷ 300.000 = 0,05 = 5\%
-\]  
+ 
 
 &emsp;O ROI inicial é de 5% no primeiro ano, com crescimento exponencial conforme novas prefeituras são integradas.  
 
 ### Payback  
 **Fórmula:** Payback = Investimento inicial ÷ Lucro líquido anual  
 
-\[
-Payback = 300.000 ÷ 315.000 = 0,95 \text{ ano}
-\]  
+Payback = 300.000 ÷ 315.000 = 0,95 /ano 
 
 &emsp;O investimento inicial é recuperado em aproximadamente 11 meses de operação plena.  
 
