@@ -4,8 +4,12 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 export default {
   title: 'Clima.Seguro',
-  url: 'https://example.com',
+  url: 'https://davidijesus.github.io',
   baseUrl: '/',
+
+  organizationName: 'davidijesus',   // ou org do GitHub
+  projectName: 'climaseguro-docs',
+  deploymentBranch: 'gh-pages',
   favicon: 'img/clima-seguro.svg',
 
   // opcional, mas bom pra URLs consistentes
