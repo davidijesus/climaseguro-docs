@@ -1,0 +1,28 @@
+{
+  "id": "solucao",
+  "title": "Solução",
+  "description": "Visão Geral",
+  "source": "@site/docs/solucao.md",
+  "sourceDirName": ".",
+  "slug": "/solucao",
+  "permalink": "/climaseguro-docs/solucao",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "solucao",
+    "title": "Solução",
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Entendimento do Problema",
+    "permalink": "/climaseguro-docs/entendimento-problema"
+  },
+  "next": {
+    "title": "Análise Financeira e Técnica",
+    "permalink": "/climaseguro-docs/analise-financeira-tecnica"
+  }
+}

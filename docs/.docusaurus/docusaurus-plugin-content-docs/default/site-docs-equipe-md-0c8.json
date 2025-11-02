@@ -1,0 +1,28 @@
+{
+  "id": "equipe",
+  "title": "Equipe",
+  "description": "&emsp; O projeto Clima.Seguro é desenvolvido por uma equipe multidisciplinar de profissionais formados no Inteli – Instituto de Tecnologia e Liderança. A equipe combina experiência em design centrado no usuário, desenvolvimento full stack e inteligência artificial aplicada à gestão pública e ambiental.",
+  "source": "@site/docs/equipe.md",
+  "sourceDirName": ".",
+  "slug": "/equipe",
+  "permalink": "/climaseguro-docs/equipe",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 5,
+  "frontMatter": {
+    "id": "equipe",
+    "title": "Equipe",
+    "sidebar_position": 5
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Impacto",
+    "permalink": "/climaseguro-docs/impacto"
+  },
+  "next": {
+    "title": "Roadmap",
+    "permalink": "/climaseguro-docs/roadmap"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "id": "entendimento-problema",
+  "title": "Entendimento do Problema",
+  "description": "Contexto",
+  "source": "@site/docs/entendimento-problema.md",
+  "sourceDirName": ".",
+  "slug": "/entendimento-problema",
+  "permalink": "/climaseguro-docs/entendimento-problema",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "entendimento-problema",
+    "title": "Entendimento do Problema",
+    "sidebar_position": 1
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Sumário Executivo",
+    "permalink": "/climaseguro-docs/"
+  },
+  "next": {
+    "title": "Solução",
+    "permalink": "/climaseguro-docs/solucao"
+  }
+}

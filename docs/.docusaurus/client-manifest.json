@@ -1,0 +1,223 @@
+{
+  "entrypoints": [
+    "main"
+  ],
+  "origins": {
+    "237": [
+      237
+    ],
+    "17896441": [
+      869,
+      401
+    ],
+    "main": [
+      354,
+      869,
+      792
+    ],
+    "runtime~main": [
+      792,
+      869,
+      354
+    ],
+    "0c8bb1d2": [
+      239
+    ],
+    "0dffb83e": [
+      821
+    ],
+    "0e384e19": [
+      976
+    ],
+    "39dc9eef": [
+      519
+    ],
+    "499dd3d4": [
+      710
+    ],
+    "5e95c892": [
+      647
+    ],
+    "83b33c9f": [
+      382
+    ],
+    "a7bd4aaa": [
+      98
+    ],
+    "a94703ab": [
+      869,
+      48
+    ],
+    "aba21aa0": [
+      742
+    ],
+    "b8991bb5": [
+      721
+    ],
+    "cf017b66": [
+      518
+    ],
+    "styles": [
+      48,
+      354,
+      401,
+      792,
+      869
+    ]
+  },
+  "assets": {
+    "48": {
+      "js": [
+        {
+          "file": "assets/js/a94703ab.448e009f.js",
+          "hash": "d9b6f529128559ae",
+          "publicPath": "/climaseguro-docs/assets/js/a94703ab.448e009f.js"
+        }
+      ]
+    },
+    "98": {
+      "js": [
+        {
+          "file": "assets/js/a7bd4aaa.bf4288c6.js",
+          "hash": "8e671e7f8007958c",
+          "publicPath": "/climaseguro-docs/assets/js/a7bd4aaa.bf4288c6.js"
+        }
+      ]
+    },
+    "237": {
+      "js": [
+        {
+          "file": "assets/js/237.5a190752.js",
+          "hash": "ebdf316ebb9fc572",
+          "publicPath": "/climaseguro-docs/assets/js/237.5a190752.js"
+        }
+      ]
+    },
+    "239": {
+      "js": [
+        {
+          "file": "assets/js/0c8bb1d2.85307d5d.js",
+          "hash": "82bb9a567e3112d0",
+          "publicPath": "/climaseguro-docs/assets/js/0c8bb1d2.85307d5d.js"
+        }
+      ]
+    },
+    "354": {
+      "js": [
+        {
+          "file": "assets/js/runtime~main.18d6b98c.js",
+          "hash": "4c3c681e563ad69f",
+          "publicPath": "/climaseguro-docs/assets/js/runtime~main.18d6b98c.js"
+        }
+      ]
+    },
+    "382": {
+      "js": [
+        {
+          "file": "assets/js/83b33c9f.9a6e1f98.js",
+          "hash": "4e052b489cda4683",
+          "publicPath": "/climaseguro-docs/assets/js/83b33c9f.9a6e1f98.js"
+        }
+      ]
+    },
+    "401": {
+      "js": [
+        {
+          "file": "assets/js/17896441.c2549ff3.js",
+          "hash": "f50d8e6d12e078d2",
+          "publicPath": "/climaseguro-docs/assets/js/17896441.c2549ff3.js"
+        }
+      ]
+    },
+    "518": {
+      "js": [
+        {
+          "file": "assets/js/cf017b66.91f110c6.js",
+          "hash": "e3911aa8aefe9e02",
+          "publicPath": "/climaseguro-docs/assets/js/cf017b66.91f110c6.js"
+        }
+      ]
+    },
+    "519": {
+      "js": [
+        {
+          "file": "assets/js/39dc9eef.c0796f32.js",
+          "hash": "5f3a62006c855a89",
+          "publicPath": "/climaseguro-docs/assets/js/39dc9eef.c0796f32.js"
+        }
+      ]
+    },
+    "647": {
+      "js": [
+        {
+          "file": "assets/js/5e95c892.61aec2f5.js",
+          "hash": "5ad201cb976e3427",
+          "publicPath": "/climaseguro-docs/assets/js/5e95c892.61aec2f5.js"
+        }
+      ]
+    },
+    "710": {
+      "js": [
+        {
+          "file": "assets/js/499dd3d4.87046a3d.js",
+          "hash": "21082ffe8e855aa6",
+          "publicPath": "/climaseguro-docs/assets/js/499dd3d4.87046a3d.js"
+        }
+      ]
+    },
+    "721": {
+      "js": [
+        {
+          "file": "assets/js/b8991bb5.cacff85d.js",
+          "hash": "e1acd3cb674d0afe",
+          "publicPath": "/climaseguro-docs/assets/js/b8991bb5.cacff85d.js"
+        }
+      ]
+    },
+    "742": {
+      "js": [
+        {
+          "file": "assets/js/aba21aa0.827b74c2.js",
+          "hash": "6e80132cd1350785",
+          "publicPath": "/climaseguro-docs/assets/js/aba21aa0.827b74c2.js"
+        }
+      ]
+    },
+    "792": {
+      "js": [
+        {
+          "file": "assets/js/main.1bde20e4.js",
+          "hash": "5dc66f2b2f11e7d8",
+          "publicPath": "/climaseguro-docs/assets/js/main.1bde20e4.js"
+        }
+      ]
+    },
+    "821": {
+      "js": [
+        {
+          "file": "assets/js/0dffb83e.a57ffd37.js",
+          "hash": "15d5eed093c2d2b8",
+          "publicPath": "/climaseguro-docs/assets/js/0dffb83e.a57ffd37.js"
+        }
+      ]
+    },
+    "869": {
+      "css": [
+        {
+          "file": "assets/css/styles.0ac7e1dd.css",
+          "hash": "b7306c986cc367dc",
+          "publicPath": "/climaseguro-docs/assets/css/styles.0ac7e1dd.css"
+        }
+      ]
+    },
+    "976": {
+      "js": [
+        {
+          "file": "assets/js/0e384e19.6623043e.js",
+          "hash": "a1979959df5e505e",
+          "publicPath": "/climaseguro-docs/assets/js/0e384e19.6623043e.js"
+        }
+      ]
+    }
+  }
+}

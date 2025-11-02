@@ -1,0 +1,63 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/climaseguro-docs/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/climaseguro-docs/",
+          "mainDocId": "sumario-executivo",
+          "docs": [
+            {
+              "id": "analise-financeira-tecnica",
+              "path": "/climaseguro-docs/analise-financeira-tecnica",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "entendimento-problema",
+              "path": "/climaseguro-docs/entendimento-problema",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "equipe",
+              "path": "/climaseguro-docs/equipe",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "impacto",
+              "path": "/climaseguro-docs/impacto",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "roadmap",
+              "path": "/climaseguro-docs/roadmap",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "solucao",
+              "path": "/climaseguro-docs/solucao",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "sumario-executivo",
+              "path": "/climaseguro-docs/",
+              "sidebar": "tutorialSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "tutorialSidebar": {
+              "link": {
+                "path": "/climaseguro-docs/",
+                "label": "sumario-executivo"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "sumario-executivo",
+  "title": "Sumário Executivo",
+  "description": "Contexto",
+  "source": "@site/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/climaseguro-docs/",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 0,
+  "frontMatter": {
+    "id": "sumario-executivo",
+    "title": "Sumário Executivo",
+    "sidebar_position": 0,
+    "slug": "/"
+  },
+  "sidebar": "tutorialSidebar",
+  "next": {
+    "title": "Entendimento do Problema",
+    "permalink": "/climaseguro-docs/entendimento-problema"
+  }
+}
