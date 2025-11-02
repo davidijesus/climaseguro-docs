@@ -42,6 +42,7 @@ const ClimaSeguro = () => {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedZone, setSelectedZone] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [useMockData, setUseMockData] = useState(false);
   
   // Buscar dados da cidade selecionada
   const selectedCityData = cities.find(c => c.code === selectedCity);
@@ -50,15 +51,100 @@ const ClimaSeguro = () => {
   const riskCalculation = useSimpleRiskCalculation({
     cityCode: selectedCity || "",
     cityUF: selectedCityData?.state || "",
-    autoStart: !!selectedCity, // Só auto-start se cidade selecionada
+    autoStart: !!selectedCity && !useMockData, // Não auto-start se usando mock
     highRiskOnly: false, // TEMPORÁRIO: Desabilitar filtro para debug
     onComplete: (zones) => {
       console.log(`✅ Cálculo concluído para ${selectedCityData?.name}: ${zones.length} zonas calculadas`);
     }
   });
   
+  // Função para gerar dados mockados
+  const generateMockZones = (): ZoneRiskResult[] => {
+    const baseCoords = selectedCityData?.coordinates || { lat: -25.4284, lon: -49.2733 };
+    const mockZones: ZoneRiskResult[] = [];
+    
+    for (let i = 0; i < 100; i++) {
+      const latOffset = (Math.random() - 0.5) * 0.1;
+      const lonOffset = (Math.random() - 0.5) * 0.1;
+      const scoreValue = Math.random();
+      const scoreNorm = Math.round(scoreValue * 100);
+      
+      let nivel = "🟢 Baixo";
+      let cor = "#10b981";
+      if (scoreNorm >= 75) {
+        nivel = "🔴 Muito Alto";
+        cor = "#ef4444";
+      } else if (scoreNorm >= 50) {
+        nivel = "🟠 Moderado";
+        cor = "#f97316";
+      } else if (scoreNorm >= 25) {
+        nivel = "🟡 Médio";
+        cor = "#eab308";
+      }
+      
+      mockZones.push({
+        id: i + 1,
+        coordinates: {
+          lat: baseCoords.lat + latOffset,
+          lon: baseCoords.lon + lonOffset
+        },
+        bbox: {
+          minLat: baseCoords.lat + latOffset - 0.001,
+          maxLat: baseCoords.lat + latOffset + 0.001,
+          minLon: baseCoords.lon + lonOffset - 0.001,
+          maxLon: baseCoords.lon + lonOffset + 0.001,
+          centerLat: baseCoords.lat + latOffset,
+          centerLon: baseCoords.lon + lonOffset
+        },
+        scoreNormalizado: scoreNorm,
+        score: scoreValue,
+        nivel,
+        cor,
+        prioridade: scoreNorm >= 75 ? 1 : scoreNorm >= 50 ? 2 : 3,
+        fatores: [
+          { nome: 'Precipitação', valor: Math.random(), peso: 0.25 },
+          { nome: 'Temperatura', valor: Math.random(), peso: 0.15 },
+          { nome: 'Umidade', valor: Math.random(), peso: 0.15 },
+          { nome: 'Densidade Populacional', valor: Math.random(), peso: 0.25 },
+          { nome: 'Vulnerabilidade', valor: Math.random(), peso: 0.20 }
+        ],
+        declividade: Math.random() * 30,
+        recomendacoes: ['Sistema de drenagem', 'Monitoramento contínuo']
+      });
+    }
+    
+    return mockZones;
+  };
+  
+  const handleSkipLoading = () => {
+    console.log('⏭️ [SKIP] Botão clicado!');
+    console.log('📊 [SKIP] Estado atual:', {
+      isLoading: riskCalculation.isLoading,
+      hasZones: !!riskCalculation.zones,
+      zonesCount: riskCalculation.zones?.length || 0,
+      useMockData
+    });
+    
+    setUseMockData(true);
+    console.log('✅ [SKIP] useMockData setado para TRUE');
+    
+    // Força o hook a parar se estiver rodando
+    if (riskCalculation.isLoading) {
+      // Seta dados mockados diretamente
+      const mockZones = generateMockZones();
+      console.log(`✅ [SKIP] ${mockZones.length} zonas mockadas geradas`);
+    }
+  };
+  
   // Converter dados para interface do Map.tsx
   const mapZones = useMemo(() => {
+    // Se está usando mock, gerar dados
+    if (useMockData) {
+      const mockZonesData = generateMockZones();
+      console.log('🎭 [ClimaSeguro] Usando MOCK DATA (SKIP ativado)');
+      return mockZonesData.map(mapZoneRiskToMapZone);
+    }
+    
     // TESTE: Se não há dados reais, usar mock para testar rendering
     const mockZones = [
       {
@@ -96,7 +182,7 @@ const ClimaSeguro = () => {
     console.log(`✅ [ClimaSeguro] ${converted.length} zonas convertidas para mapa`);
     
     return converted;
-  }, [riskCalculation.zones]);
+  }, [riskCalculation.zones, useMockData, selectedCityData]);
   
   const getCityCoordinates = (): [number, number] => {
     return selectedCityData ? [selectedCityData.coordinates.lat, selectedCityData.coordinates.lon] : [-25.4284, -49.2733];
@@ -112,6 +198,7 @@ const ClimaSeguro = () => {
     if (selectedCity) {
       setSelectedZone(null);
       setModalOpen(false);
+      setUseMockData(false); // Reset mock data flag
     }
   }, [selectedCity]);
 
@@ -187,8 +274,18 @@ const ClimaSeguro = () => {
                 🗺️ Mapa de Zonas de Risco
               </h3>
               
+              {/* DEBUG INFO - Remover depois */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mb-4 p-2 bg-yellow-100 border border-yellow-400 rounded text-xs">
+                  <strong>🔍 DEBUG:</strong> isLoading={String(riskCalculation.isLoading)} | 
+                  useMockData={String(useMockData)} | 
+                  zones={riskCalculation.zones?.length || 0} | 
+                  mapZones={mapZones.length}
+                </div>
+              )}
+              
               {/* Loading State */}
-              {riskCalculation.isLoading && (
+              {riskCalculation.isLoading && !useMockData && (
                 <div className="flex flex-col items-center justify-center py-8 space-y-4">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                   <div className="text-center">
@@ -201,6 +298,14 @@ const ClimaSeguro = () => {
                         </p>
                       </div>
                     )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-4 bg-white hover:bg-gray-50"
+                      onClick={handleSkipLoading}
+                    >
+                      ⏭️ Pular e usar dados mockados
+                    </Button>
                   </div>
                 </div>
               )}
@@ -228,7 +333,7 @@ const ClimaSeguro = () => {
               )}
               
               {/* Map */}
-              {!riskCalculation.isLoading && !riskCalculation.isError && (
+              {(!riskCalculation.isLoading || useMockData) && !riskCalculation.isError && (
                 <>
                   <Map 
                     center={getCityCoordinates()} 
@@ -248,7 +353,7 @@ const ClimaSeguro = () => {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {mapZones.length > 0 
-                        ? `${mapZones.length} zonas de risco exibidas` 
+                        ? `${mapZones.length} zonas de risco exibidas ${useMockData ? '(dados mockados)' : ''}` 
                         : 'Nenhuma zona de alto risco encontrada'
                       }
                     </div>
